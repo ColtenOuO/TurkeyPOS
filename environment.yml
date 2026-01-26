@@ -1,0 +1,15 @@
+name: turkey-pos
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - fastapi
+      - uvicorn[standard]
+      - sqlalchemy
+      - psycopg2-binary
+      - pydantic-settings
+      - alembic
+      - python-dotenv

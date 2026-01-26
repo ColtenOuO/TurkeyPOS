@@ -1,0 +1,35 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+build/
+dist/
+
+# Conda
+.conda/
+conda-bld/
+
+# Databases & Docker
+*.sqlite3
+*.db
+postgres_data/
+
+# Environment variables
+.env
+.flaskenv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,48 @@
+# app/schemas/product.py
+
+import uuid
+from typing import List, Optional
+from pydantic import BaseModel, ConfigDict
+
+class ProductOptionBase(BaseModel):
+    name: str
+    price_delta: float = 0.0
+    is_required: bool = False
+
+class ProductOptionCreate(ProductOptionBase):
+    product_id: uuid.UUID
+
+class ProductOption(ProductOptionBase):
+    id: uuid.UUID
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+class ProductBase(BaseModel):
+    name: str
+    base_price: float
+
+class ProductCreate(ProductBase):
+    category_id: uuid.UUID
+
+class Product(ProductBase):
+    id: uuid.UUID
+    category_id: uuid.UUID
+    options: List[ProductOption] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CategoryBase(BaseModel):
+    name: str
+    sort_order: int = 0
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class Category(CategoryBase):
+    id: uuid.UUID
+    products: List[Product] = []
+
+    model_config = ConfigDict(from_attributes=True)
