@@ -25,6 +25,9 @@ class OrderCreate(BaseModel):
     table_number: Optional[str] = None
     items: List[OrderItemCreate]
 
+class OrderUpdateStatus(BaseModel):
+    status: str
+
 class OrderResponse(BaseModel):
     id: uuid.UUID
     table_number: Optional[str]

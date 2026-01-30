@@ -28,6 +28,22 @@ services:
       - db
     volumes:
       - .:/app
+    volumes:
+      - .:/app
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: turkey_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    environment:
+      - VITE_API_BASE=http://localhost:8000/api/v1
+  
   pgadmin:
     image: dpage/pgadmin4
     container_name: turkey_pgadmin

@@ -23,3 +23,24 @@ export interface CartItem extends Product {
   selected_option_ids: string[];
   total_unit_price: number;
 }
+
+export interface OrderItemOptionBackend {
+  option_name: string;
+  price_delta: number;
+}
+
+export interface OrderItemBackend {
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  selected_options: OrderItemOptionBackend[];
+}
+
+export interface Order {
+  id: string;
+  table_number: string | null;
+  total_price: number;
+  status: string;
+  created_at: string;
+  items: OrderItemBackend[];
+}

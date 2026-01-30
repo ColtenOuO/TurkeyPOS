@@ -1,68 +1,19 @@
-# app/api/v1/endpoints/orders.py
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.models.order import Order, OrderItem, OrderItemOption
-from app.models.product import Product, ProductOption
-from app.schemas.order import OrderCreate, OrderResponse
+from app.schemas.order import OrderCreate, OrderResponse, OrderUpdateStatus
 from typing import List
+from app.crud import order as crud_order
 
 router = APIRouter()
 
 @router.post("/", response_model=OrderResponse)
 def create_order(order_in: OrderCreate, db: Session = Depends(get_db)):
-    total_price = 0.0
-    db_order = Order(
-        id=uuid.uuid4(),
-        table_number=order_in.table_number,
-        total_price=0.0,
-        status="pending"
-    )
-    db.add(db_order)
-
-    for item in order_in.items:
-        product = db.query(Product).filter(Product.id == item.product_id).first()
-        if not product:
-            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-
-        current_unit_price = product.base_price
-        options_to_add = []
-        
-        for opt_id in item.option_ids:
-            option = db.query(ProductOption).filter(ProductOption.id == opt_id).first()
-            if option:
-                current_unit_price += option.price_delta
-                options_to_add.append(option)
-
-        db_item = OrderItem(
-            id=uuid.uuid4(),
-            order_id=db_order.id,
-            product_id=product.id,
-            product_name=product.name,
-            quantity=item.quantity,
-            unit_price=current_unit_price
-        )
-        db.add(db_item)
-        
-        for opt in options_to_add:
-            db.add(OrderItemOption(
-                order_item_id=db_item.id,
-                option_name=opt.name,
-                price_delta=opt.price_delta
-            ))
-        
-        total_price += current_unit_price * item.quantity
-
-    db_order.total_price = total_price
-    db.commit()
-    db.refresh(db_order)
-    return db_order
-
-@router.get("/active", response_model=List[OrderResponse])
-def get_active_orders(db: Session = Depends(get_db)):
-    """列出目前尚未完成的訂單"""
-    return db.query(Order).filter(Order.status == "pending").all()
+    """
+    建立訂單
+    """
+    return crud_order.create_order(db, order_in)
 
 @router.get("/", response_model=List[OrderResponse])
 def get_all_orders(
@@ -73,22 +24,35 @@ def get_all_orders(
     """
     列出資料庫中所有的訂單 (包含已完成的)
     """
-    orders = db.query(Order)\
-        .options(joinedload(Order.items))\
-        .order_by(Order.created_at.desc())\
-        .offset(skip)\
-        .limit(limit)\
-        .all()
-    return orders
+    return crud_order.get_orders(db, skip=skip, limit=limit)
 
 @router.get("/active", response_model=List[OrderResponse])
 def get_active_orders(db: Session = Depends(get_db)):
     """
     出狀態為 'pending' (待處理) 的訂單
     """
-    active_orders = db.query(Order)\
-        .filter(Order.status == "pending")\
-        .options(joinedload(Order.items))\
-        .order_by(Order.created_at.asc())\
-        .all()
-    return active_orders
+    return crud_order.get_active_orders(db)
+
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+def update_order_status(
+    order_id: uuid.UUID, 
+    status_update: OrderUpdateStatus, 
+    db: Session = Depends(get_db)
+):
+    """
+    更新訂單狀態
+    """
+    order = crud_order.update_order_status(db, order_id, status_update.status)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+@router.delete("/{order_id}", response_model=OrderResponse)
+def delete_order(order_id: uuid.UUID, db: Session = Depends(get_db)):
+    """
+    刪除訂單
+    """
+    order = crud_order.delete_order(db, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order

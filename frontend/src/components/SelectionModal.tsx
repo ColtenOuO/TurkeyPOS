@@ -10,7 +10,7 @@ interface Props {
 
 const SelectionModal: React.FC<Props> = ({ product, onClose, onConfirm }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [quantityStr, setQuantityStr] = useState<string>("0"); // 預設為 0
+  const [quantityStr, setQuantityStr] = useState<string>("0");
 
   const toggleOption = (opt: ProductOption) => {
     if (opt.is_required) {
@@ -28,7 +28,7 @@ const SelectionModal: React.FC<Props> = ({ product, onClose, onConfirm }) => {
   const handleKeypad = (num: string) => {
     setQuantityStr(prev => {
       if (prev === "0") return num;
-      if (prev.length >= 2) return prev; // 限制最多兩位數 99
+      if (prev.length >= 2) return prev;
       return prev + num;
     });
   };
@@ -42,7 +42,6 @@ const SelectionModal: React.FC<Props> = ({ product, onClose, onConfirm }) => {
       alert("⚠️ 數量不能為 0，請輸入正確數量！");
       return;
     }
-    // 這裡只傳出選項和數量，不更動 App.tsx 的計算邏輯
     onConfirm(product.options.filter(o => selectedIds.includes(o.id)), qty);
   };
 

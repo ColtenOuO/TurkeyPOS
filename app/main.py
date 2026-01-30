@@ -1,9 +1,13 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import menu, orders
+from app.api.v1.endpoints import menu, orders, products, analytics
 
 app = FastAPI(title="Turkey Rice POS System", version="1.0.0")
+
+# Force server reload for analytics API fix
+
+# Force server reload for timezone fix
 
 # CROS
 app.add_middleware(
@@ -16,6 +20,8 @@ app.add_middleware(
 
 app.include_router(menu.router, prefix="/api/v1/menu", tags=["Menu"])
 app.include_router(orders.router, prefix="/api/v1/orders", tags=["Orders"])
+app.include_router(products.router, prefix="/api/v1/products", tags=["Products"])
+app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
 
 @app.get("/")
 def root():

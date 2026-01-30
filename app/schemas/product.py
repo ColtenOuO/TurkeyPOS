@@ -26,6 +26,11 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     category_id: uuid.UUID
 
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    base_price: Optional[float] = None
+    options: Optional[List[ProductOptionBase]] = None
+
 class Product(ProductBase):
     id: uuid.UUID
     category_id: uuid.UUID
