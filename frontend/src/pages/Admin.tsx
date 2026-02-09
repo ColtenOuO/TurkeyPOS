@@ -70,7 +70,13 @@ const Admin: React.FC = () => {
                     <LayoutDashboard size={40} className="text-blue-600" />
                     管理後台
                 </h1>
-                <p className="text-slate-500 font-bold ml-14 mt-1">每日銷售概況</p>
+                <div className="flex items-center justify-between">
+                    <p className="text-slate-500 font-bold ml-14 mt-1">每日銷售概況</p>
+                    <a href="/admin/products" className="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center gap-2">
+                        <Package size={18} />
+                        管理商品
+                    </a>
+                </div>
             </header>
 
             {/* Stats Cards */}

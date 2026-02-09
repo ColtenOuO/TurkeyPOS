@@ -5,10 +5,6 @@ from app.api.v1.endpoints import menu, orders, products, analytics
 
 app = FastAPI(title="Turkey Rice POS System", version="1.0.0")
 
-# Force server reload for analytics API fix
-
-# Force server reload for timezone fix
-
 # CROS
 app.add_middleware(
     CORSMiddleware,
