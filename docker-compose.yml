@@ -28,21 +28,20 @@ services:
       - db
     volumes:
       - .:/app
-    volumes:
-      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
   
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: ${VITE_API_BASE}
     container_name: turkey_frontend
     restart: always
     ports:
       - "3000:80"
     depends_on:
       - api
-    environment:
-      - VITE_API_BASE=http://localhost:8000/api/v1
   
   pgadmin:
     image: dpage/pgadmin4

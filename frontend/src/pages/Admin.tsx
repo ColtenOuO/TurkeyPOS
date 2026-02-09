@@ -72,10 +72,16 @@ const Admin: React.FC = () => {
                 </h1>
                 <div className="flex items-center justify-between">
                     <p className="text-slate-500 font-bold ml-14 mt-1">每日銷售概況</p>
-                    <a href="/admin/products" className="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center gap-2">
-                        <Package size={18} />
-                        管理商品
-                    </a>
+                    <div className="flex gap-3">
+                        <a href="/admin/sales" className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-200">
+                            <TrendingUp size={18} />
+                            銷售報表
+                        </a>
+                        <a href="/admin/products" className="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center gap-2">
+                            <Package size={18} />
+                            管理商品
+                        </a>
+                    </div>
                 </div>
             </header>
 

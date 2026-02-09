@@ -22,9 +22,11 @@ class ProductOption(ProductOptionBase):
 class ProductBase(BaseModel):
     name: str
     base_price: float
+    sort_order: int = 0
 
 class ProductCreate(ProductBase):
     category_id: uuid.UUID
+    options: List[ProductOptionBase] = []
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -51,3 +53,6 @@ class Category(CategoryBase):
     products: List[Product] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+class ReorderSchema(BaseModel):
+    items: List[dict] # [{"id": "uuid", "sort_order": 1}, ...]

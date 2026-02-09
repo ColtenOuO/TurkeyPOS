@@ -4,6 +4,7 @@ import POS from './pages/POS';
 import Kitchen from './pages/Kitchen';
 import Admin from './pages/Admin';
 import ProductManagement from './pages/ProductManagement';
+import SalesDashboard from './pages/SalesDashboard';
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
         <Route path="/kitchen" element={<Kitchen />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/products" element={<ProductManagement />} />
+        <Route path="/admin/sales" element={<SalesDashboard />} />
       </Routes>
     </Router>
   );
