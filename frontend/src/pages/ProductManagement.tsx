@@ -372,6 +372,17 @@ const ProductManagement: React.FC = () => {
                     <Trash2 size={18} />
                     回收桶
                 </button>
+                <button
+                    onClick={() => {
+                        if (confirm("確定要登出嗎？")) {
+                            localStorage.removeItem('token');
+                            window.location.href = "/login";
+                        }
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors"
+                >
+                    登出
+                </button>
             </header>
 
             <div className="space-y-8">

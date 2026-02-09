@@ -13,3 +13,6 @@ dependencies:
       - pydantic-settings
       - alembic
       - python-dotenv
+      - python-jose[cryptography]
+      - passlib[bcrypt]
+      - python-multipart

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY environment.yml .
-RUN pip install --no-cache-dir fastapi uvicorn[standard] sqlalchemy psycopg2-binary pydantic-settings alembic
+RUN pip install --no-cache-dir fastapi uvicorn[standard] sqlalchemy psycopg2-binary pydantic-settings alembic "python-jose[cryptography]" "passlib[bcrypt]" python-multipart
 
 COPY . .
 

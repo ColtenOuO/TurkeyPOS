@@ -16,15 +16,17 @@ def get_menu(db: Session = Depends(get_db)):
     """
     return crud_menu.get_menu(db)
 
+from app.api.deps import get_current_admin
+
 @router.post("/categories", response_model=CategorySchema)
-def create_category(category_in: CategoryCreate, db: Session = Depends(get_db)):
+def create_category(category_in: CategoryCreate, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     新增餐點分類
     """
     return crud_menu.create_category(db, category_in)
 
 @router.put("/reorder")
-def reorder_categories(payload: dict, db: Session = Depends(get_db)):
+def reorder_categories(payload: dict, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     { "items": [ {"id": "uuid", "sort_order": 1}, ... ] }
     """
@@ -39,7 +41,7 @@ def reorder_categories(payload: dict, db: Session = Depends(get_db)):
     return {"message": "Categories reordered successfully"}
 
 @router.delete("/categories/{category_id}")
-def delete_category(category_id: str, db: Session = Depends(get_db)):
+def delete_category(category_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     刪除分類 (Soft Delete)
     """
@@ -49,14 +51,14 @@ def delete_category(category_id: str, db: Session = Depends(get_db)):
     return {"message": "Category deleted successfully"}
 
 @router.get("/trash")
-def get_trash(db: Session = Depends(get_db)):
+def get_trash(db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     獲取已刪除的項目 (回收桶)
     """
     return crud_menu.get_deleted_items(db)
 
 @router.post("/categories/{category_id}/restore")
-def restore_category(category_id: str, db: Session = Depends(get_db)):
+def restore_category(category_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     復原分類
     """
@@ -66,7 +68,7 @@ def restore_category(category_id: str, db: Session = Depends(get_db)):
     return {"message": "Category restored successfully"}
 
 @router.delete("/categories/{category_id}/hard")
-def hard_delete_category(category_id: str, db: Session = Depends(get_db)):
+def hard_delete_category(category_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     永久刪除分類
     """

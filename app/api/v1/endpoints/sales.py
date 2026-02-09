@@ -6,13 +6,16 @@ from app.models.order import Order
 from typing import Optional, Dict
 from datetime import datetime, date
 
+from app.api.deps import get_current_admin
+
 router = APIRouter()
 
 @router.get("/stats")
 def get_sales_stats(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_admin: str = Depends(get_current_admin)
 ):
     """
     Get aggregated sales statistics.

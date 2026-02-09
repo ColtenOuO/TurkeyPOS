@@ -8,15 +8,17 @@ router = APIRouter()
 
 
 
+from app.api.deps import get_current_admin
+
 @router.post("/", response_model=Product)
-def create_product(product_in: ProductCreate, db: Session = Depends(get_db)):
+def create_product(product_in: ProductCreate, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     新增餐點
     """
     return crud_product.create_product(db, product_in)
 
 @router.patch("/{name}", response_model=Product)
-def update_product(name: str, product_in: ProductUpdate, db: Session = Depends(get_db)):
+def update_product(name: str, product_in: ProductUpdate, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     依據餐點名稱更新資訊
     """
@@ -27,7 +29,7 @@ def update_product(name: str, product_in: ProductUpdate, db: Session = Depends(g
     return crud_product.update_product_by_name(db, product, product_in)
 
 @router.put("/reorder")
-def reorder_products(payload: dict, db: Session = Depends(get_db)):
+def reorder_products(payload: dict, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     { "items": [ {"id": "uuid", "sort_order": 1}, ... ] }
     """
@@ -42,7 +44,7 @@ def reorder_products(payload: dict, db: Session = Depends(get_db)):
     return {"message": "Products reordered successfully"}
 
 @router.delete("/{product_id}")
-def delete_product(product_id: str, db: Session = Depends(get_db)):
+def delete_product(product_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     刪除餐點 (Soft Delete)
     """
@@ -52,7 +54,7 @@ def delete_product(product_id: str, db: Session = Depends(get_db)):
     return {"message": "Product deleted successfully"}
 
 @router.post("/{product_id}/restore")
-def restore_product(product_id: str, db: Session = Depends(get_db)):
+def restore_product(product_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     復原餐點
     """
@@ -62,7 +64,7 @@ def restore_product(product_id: str, db: Session = Depends(get_db)):
     return {"message": "Product restored successfully"}
 
 @router.delete("/{product_id}/hard")
-def hard_delete_product(product_id: str, db: Session = Depends(get_db)):
+def hard_delete_product(product_id: str, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
     """
     永久刪除餐點
     """
