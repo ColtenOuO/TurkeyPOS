@@ -6,14 +6,16 @@ from app.models.product import Product, ProductOption
 from app.schemas.order import OrderCreate
 from fastapi import HTTPException
 
-def create_order(db: Session, order_in: OrderCreate):
+def create_order(db: Session, order_in: OrderCreate, store_id: uuid.UUID = None):
     total_price = 0.0
     db_order = Order(
         id=uuid.uuid4(),
         table_number=order_in.table_number,
         total_price=0.0,
         status="pending",
-        created_at=datetime.utcnow() + timedelta(hours=8)
+        order_type=order_in.order_type,
+        created_at=datetime.utcnow() + timedelta(hours=8),
+        store_id=store_id
     )
     db.add(db_order)
 
@@ -55,22 +57,29 @@ def create_order(db: Session, order_in: OrderCreate):
     db.refresh(db_order)
     return db_order
 
-def get_active_orders(db: Session):
+def get_active_orders(db: Session, store_id: uuid.UUID = None):
     """
     列出目前尚未完成的訂單 (status == 'pending')
     """
-    return db.query(Order)\
-        .filter(Order.status == "pending")\
-        .options(joinedload(Order.items))\
+    query = db.query(Order).filter(Order.status == "pending")
+    
+    if store_id:
+        query = query.filter(Order.store_id == store_id)
+        
+    return query.options(joinedload(Order.items))\
         .order_by(Order.created_at.asc())\
         .all()
 
-def get_orders(db: Session, skip: int = 0, limit: int = 100):
+def get_orders(db: Session, skip: int = 0, limit: int = 100, store_id: uuid.UUID = None):
     """
     列出資料庫中所有的訂單 (包含已完成的)
     """
-    return db.query(Order)\
-        .options(joinedload(Order.items))\
+    query = db.query(Order)
+    
+    if store_id:
+        query = query.filter(Order.store_id == store_id)
+        
+    return query.options(joinedload(Order.items))\
         .order_by(Order.created_at.desc())\
         .offset(skip)\
         .limit(limit)\

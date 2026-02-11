@@ -4,7 +4,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     AreaChart, Area
 } from 'recharts';
-import { LayoutDashboard, DollarSign, ShoppingBag, TrendingUp, Package, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, DollarSign, ShoppingBag, TrendingUp, Package, CalendarDays, Store } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api/v1";
 
@@ -80,6 +80,10 @@ const Admin: React.FC = () => {
                         <a href="/admin/products" className="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center gap-2">
                             <Package size={18} />
                             管理商品
+                        </a>
+                        <a href="/admin/stores" className="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors flex items-center gap-2 shadow-lg shadow-purple-200">
+                            <Store size={18} />
+                            分店管理
                         </a>
                         <button
                             onClick={() => {

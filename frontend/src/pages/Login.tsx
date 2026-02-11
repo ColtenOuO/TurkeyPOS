@@ -69,13 +69,23 @@ const Login: React.FC = () => {
                         </div>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-50"
-                    >
-                        {loading ? "驗證中..." : "登入系統"}
-                    </button>
+                    <div className="space-y-3">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-50"
+                        >
+                            {loading ? "驗證中..." : "登入系統"}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate('/store-login')}
+                            className="w-full py-3 bg-white text-slate-500 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                        >
+                            回到分店登入頁面
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

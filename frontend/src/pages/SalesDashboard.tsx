@@ -26,6 +26,7 @@ const SalesDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [stats, setStats] = useState<SalesStats | null>(null);
+    const [overview, setOverview] = useState<any[] | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     // Filter States
@@ -33,20 +34,37 @@ const SalesDashboard: React.FC = () => {
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
     const [isOverall, setIsOverall] = useState(false);
 
+    // Store Filter
+    const [stores, setStores] = useState<{ id: string, name: string }[]>([]);
+    const [selectedStore, setSelectedStore] = useState<string>("");
+
     useEffect(() => {
         // Clock timer
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+        // Fetch stores
+        const fetchStores = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/stores/`);
+                setStores(res.data);
+            } catch (e) {
+                // Ignore if not admin or fails
+            }
+        };
+        fetchStores();
+
         return () => clearInterval(timer);
     }, []);
 
     useEffect(() => {
         fetchSalesStats();
-    }, [isOverall]); // Fetch when filter mode changes
+    }, [isOverall, selectedStore]); // Fetch when filter mode changes
 
     const fetchSalesStats = async () => {
         setLoading(true);
         try {
             let url = `${API_BASE}/sales/stats`;
+            let overviewUrl = `${API_BASE}/sales/overview`; // New endpoint
             const params = new URLSearchParams();
 
             if (!isOverall) {
@@ -54,11 +72,24 @@ const SalesDashboard: React.FC = () => {
                 if (endDate) params.append('end_date', endDate);
             }
 
+            if (selectedStore) {
+                params.append('store_id', selectedStore);
+            }
+
             const res = await axios.get(`${url}?${params.toString()}`);
             setStats(res.data);
+
+            // Fetch overview only if we are viewing all stores
+            if (!selectedStore) {
+                const resOverview = await axios.get(`${overviewUrl}?${params.toString()}`);
+                setOverview(resOverview.data);
+            } else {
+                setOverview(null);
+            }
+
         } catch (err) {
             console.error("Failed to fetch sales stats", err);
-            alert("無法載入銷售數據");
+            // alert("無法載入銷售數據");
         } finally {
             setLoading(false);
         }
@@ -179,6 +210,22 @@ const SalesDashboard: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
+                {stores.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-slate-100">
+                        <label className="block text-sm font-bold text-slate-500 mb-2">分店篩選</label>
+                        <select
+                            value={selectedStore}
+                            onChange={(e) => setSelectedStore(e.target.value)}
+                            className="w-full md:w-64 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">所有分店</option>
+                            {stores.map(store => (
+                                <option key={store.id} value={store.id}>{store.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
 
             {/* Stats Cards */}
@@ -229,6 +276,41 @@ const SalesDashboard: React.FC = () => {
                 </div>
             </div>
 
+
+            {/* Store Overview Cards */}
+            {
+                (isOverall || !selectedStore) && overview && overview.length > 0 ? (
+                    <div className="mb-8">
+                        <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 mb-4">
+                            <ShoppingBag className="text-blue-600" size={24} />
+                            各分店營運概況
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {overview.map((store) => (
+                                <div key={store.store_id} className={`bg-white rounded-2xl p-6 border shadow-sm hover:shadow-md transition-all ${store.is_active ? 'border-slate-100' : 'border-red-100 bg-red-50/50'}`}>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="font-black text-xl text-slate-800">{store.store_name}</div>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${store.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {store.is_active ? '營業中' : '停用'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-400 mb-1">訂單數</div>
+                                            <div className="text-2xl font-black text-slate-800">{store.total_orders}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-sm font-bold text-slate-400 mb-1">銷售額</div>
+                                            <div className="text-2xl font-black text-blue-600">${store.total_sales.toLocaleString()}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : null
+            }
+
             {/* Product Sales Table */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
@@ -266,7 +348,7 @@ const SalesDashboard: React.FC = () => {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

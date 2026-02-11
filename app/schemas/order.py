@@ -23,6 +23,7 @@ class OrderItemCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     table_number: Optional[str] = None
+    order_type: str = "dine_in"
     items: List[OrderItemCreate]
 
 class OrderUpdateStatus(BaseModel):
@@ -30,7 +31,9 @@ class OrderUpdateStatus(BaseModel):
 
 class OrderResponse(BaseModel):
     id: uuid.UUID
+    store_id: Optional[uuid.UUID] = None
     table_number: Optional[str]
+    order_type: str
     total_price: float
     status: str
     created_at: datetime

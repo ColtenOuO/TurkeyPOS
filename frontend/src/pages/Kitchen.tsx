@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { CheckCircle2, Trash2, Clock, ChefHat } from 'lucide-react';
+import { CheckCircle2, Trash2, Clock, ChefHat, LogOut } from 'lucide-react';
 import type { Order } from '../types';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -13,6 +13,7 @@ const Kitchen: React.FC = () => {
     const [currentTime, setCurrentTime] = useState<string>("");
     const [completingIds, setCompletingIds] = useState<string[]>([]);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [storeName, setStoreName] = useState<string>("");
 
     const fetchOrders = async () => {
         try {
@@ -26,6 +27,18 @@ const Kitchen: React.FC = () => {
     };
 
     useEffect(() => {
+        // Get store name from token
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // Simple decode to get store_name
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                setStoreName(payload.store_name || "Unknown Store");
+            } catch (e) {
+                console.error("Failed to decode token", e);
+            }
+        }
+
         fetchOrders();
         const interval = setInterval(fetchOrders, 10000); // Poll every 10 seconds
 
@@ -73,35 +86,59 @@ const Kitchen: React.FC = () => {
 
     if (loading) return (
         <div className="h-screen w-full flex items-center justify-center bg-slate-50 font-black text-orange-500 text-xl">
-            LOADING ORDERS...
+            載入訂單中... (Loading Orders)
         </div>
     );
 
     return (
         <div className="min-h-screen bg-slate-100 p-8 font-sans">
             <header className="mb-12 flex items-center justify-between">
-                <div>
-                    <h1 className="text-4xl font-black text-slate-800 flex items-center gap-4">
-                        <ChefHat size={40} className="text-orange-600" />
-                        Kitchen Display
-                    </h1>
-                    <p className="text-slate-500 font-bold ml-14 mt-1 tracking-widest text-sm uppercase">Pending Orders</p>
+                <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center border-2 border-orange-200 shadow-sm">
+                        <ChefHat size={48} className="text-orange-600" />
+                    </div>
+                    <div>
+                        <h1 className="text-5xl font-black text-slate-800 tracking-tight">
+                            {storeName || "廚房系統"}
+                        </h1>
+                        <div className="text-slate-400 font-bold tracking-widest text-lg uppercase mt-2 flex items-center gap-2">
+                            廚房接單系統 <span className="text-slate-300">|</span> KITCHEN DISPLAY
+                        </div>
+                    </div>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="text-3xl font-black text-slate-400 font-mono tracking-widest">
                         {currentTime}
                     </div>
                     <div className="bg-white px-6 py-3 rounded-xl font-black text-slate-700 shadow-sm border border-slate-200">
-                        Active Orders: <span className="text-orange-600 text-xl">{orders.length}</span>
+                        待製作: <span className="text-orange-600 text-xl">{orders.length}</span>
                     </div>
+                    <button
+                        onClick={() => window.location.href = "/"}
+                        className="px-4 py-3 bg-white text-slate-600 rounded-xl shadow-md font-bold hover:bg-slate-50 transition-colors border border-slate-200"
+                    >
+                        回到點餐
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (confirm("確定要登出廚房系統嗎？")) {
+                                localStorage.removeItem('token');
+                                window.location.href = "/store-login";
+                            }
+                        }}
+                        className="p-3 bg-white rounded-xl shadow-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors border border-slate-200"
+                        title="登出"
+                    >
+                        <LogOut size={24} />
+                    </button>
                 </div>
             </header>
 
             {orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
                     <CheckCircle2 size={64} className="mb-4 opacity-50" />
-                    <div className="text-2xl font-black">All Caught Up!</div>
-                    <div className="font-medium mt-2">No pending orders at the moment.</div>
+                    <div className="text-2xl font-black">目前沒有訂單</div>
+                    <div className="font-medium mt-2">休息一下吧！</div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -110,11 +147,20 @@ const Kitchen: React.FC = () => {
                             className={`bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200 border border-white flex flex-col hover:shadow-2xl transition-all duration-500 ${completingIds.includes(order.id) ? 'opacity-0 scale-90 translate-y-10' : 'opacity-100 scale-100'}`}>
                             <div className="flex justify-between items-start mb-6 pb-4 border-b border-slate-100" >
                                 <div>
-                                    <div className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-1">Table</div>
-                                    <div className="text-3xl font-black text-slate-800">{order.table_number || "N/A"}</div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <div className="text-slate-400 font-bold text-xs uppercase tracking-wider">桌號 (Table)</div>
+                                        {order.order_type === 'takeout' && (
+                                            <span className="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold border border-blue-200">
+                                                外帶
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="text-3xl font-black text-slate-800">
+                                        {order.table_number === 'Takeout' ? '外帶' : (order.table_number || "N/A")}
+                                    </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-1">Time</div>
+                                    <div className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-1">時間 (Time)</div>
                                     <div className="text-sm font-bold text-slate-600 flex items-center gap-1 justify-end">
                                         <Clock size={14} />
                                         {new Date(order.created_at).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}

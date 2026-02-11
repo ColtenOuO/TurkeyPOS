@@ -39,6 +39,7 @@ export interface OrderItemBackend {
 export interface Order {
   id: string;
   table_number: string | null;
+  order_type: string;
   total_price: number;
   status: string;
   created_at: string;
