@@ -107,6 +107,28 @@ For local development without Docker, it is recommended to use Conda to manage t
     npm run dev
     ```
 
+### Deployment (Production)
+
+The system automatically proxies API requests, so you generally **do not need** to change the API URL.
+
+1.  **Standard Build**:
+    ```bash
+    docker-compose up --build -d
+    ```
+    The frontend is configured to send requests to `/api/v1`, which Nginx internally routes to the backend container.
+
+### Configuration (.env)
+
+Setting up the `.env` file, pay special attention to the following variables:
+
+| Variable Name | Description | Default / Example |
+| :--- | :--- | :--- |
+| `POSTGRES_USER` | Database user | `admin` |
+| `POSTGRES_PASSWORD` | Database password | `admin` |
+| `POSTGRES_DB` | Database name | `turkey_pos_db` |
+| `SECRET_KEY` | JWT encryption key | **MUST be changed to a random string** |
+| `ADMIN_PASSWORD` | Admin login password | `admin_secret` |
+
 ### Usage Guide
 
 1.  **Admin Login**:
@@ -230,6 +252,16 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
     ```bash
     npm run dev
     ```
+
+### 部署說明 (Production Deployment)
+
+系統已設定自動代理 API 請求，因此您通常 **不需要** 修改 API 網址。
+
+1.  **標準部署**:
+    ```bash
+    docker-compose up --build -d
+    ```
+    前端預設會將請求發送至 `/api/v1`，並由 Nginx 內部自動轉發至後端容器。
 
 ### 設定說明 (.env)
 
