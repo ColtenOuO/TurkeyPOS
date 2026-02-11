@@ -8,13 +8,13 @@ from datetime import timedelta
 router = APIRouter()
 
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD", "admin")
+ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD", "admin_secret")
 @router.post("/login/access-token")
 def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    env_password = os.getenv("ADMIN_PASSWORD", "admin")
+    env_password = os.getenv("ADMIN_PASSWORD", "admin_secret")
     
     if form_data.username != "admin":
          pass
