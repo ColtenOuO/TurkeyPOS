@@ -115,7 +115,7 @@ The system automatically proxies API requests, so you generally **do not need** 
     ```bash
     docker-compose up --build -d
     ```
-    The frontend is configured to send requests to `/api/v1`, which Nginx internally routes to the backend container.
+    The frontend is configured to send requests to `/api/v1` by default. Nginx handles the routing internally, so no manual configuration is needed.
 
 ### Configuration (.env)
 
@@ -261,7 +261,7 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
     ```bash
     docker-compose up --build -d
     ```
-    前端預設會將請求發送至 `/api/v1`，並由 Nginx 內部自動轉發至後端容器。
+    前端預設會將請求發送至 `/api/v1`，Nginx 會自動處理內部轉發，無需手動設定。
 
 ### 設定說明 (.env)
 

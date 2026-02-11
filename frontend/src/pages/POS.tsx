@@ -6,7 +6,7 @@ import SelectionModal from '../components/SelectionModal';
 import VirtualKeyboard from '../components/VirtualKeyboard';
 import SuccessModal from '../components/SuccessModal';
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
 const POS: React.FC = () => {
     const [menu, setMenu] = useState<Category[]>([]);

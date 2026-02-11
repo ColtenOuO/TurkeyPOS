@@ -5,7 +5,7 @@ import { CheckCircle2, Trash2, Clock, ChefHat, LogOut } from 'lucide-react';
 import type { Order } from '../types';
 import ConfirmModal from '../components/ConfirmModal';
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
 const Kitchen: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);

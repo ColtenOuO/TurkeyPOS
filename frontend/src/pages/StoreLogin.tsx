@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Store, Lock } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
 const StoreLogin: React.FC = () => {
     const navigate = useNavigate();
