@@ -117,6 +117,16 @@ The system automatically proxies API requests, so you generally **do not need** 
     ```
     The frontend is configured to send requests to `/api/v1` by default. Nginx handles the routing internally, so no manual configuration is needed.
 
+2.  **Initialize Database (Fresh Install Only)**:
+    If this is a new server, you must run migrations:
+    ```bash
+    docker-compose exec api alembic upgrade head
+    ```
+    *(Optional) Seed with sample data:*
+    ```bash
+    docker-compose exec api python scripts/seed_db.py
+    ```
+
 ### Configuration (.env)
 
 Setting up the `.env` file, pay special attention to the following variables:
@@ -262,6 +272,16 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
     docker-compose up --build -d
     ```
     前端預設會將請求發送至 `/api/v1`，Nginx 會自動處理內部轉發，無需手動設定。
+
+2.  **初始化資料庫 (僅首次安裝)**:
+    若是新伺服器，請務必執行資料庫遷移指令：
+    ```bash
+    docker-compose exec api alembic upgrade head
+    ```
+    *(選用) 載入範例資料：*
+    ```bash
+    docker-compose exec api python scripts/seed_db.py
+    ```
 
 ### 設定說明 (.env)
 
