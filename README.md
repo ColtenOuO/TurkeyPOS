@@ -34,7 +34,15 @@ It features a responsive POS interface for ordering, a real-time Kitchen Display
 *   **Admin Dashboard**:
     *   Sales overview (Daily revenue, Order counts).
     *   Menu management (Add/Edit/Delete items, Soft delete).
-    *   Store management (Multi-store support).
+*   Store management (Multi-store support).
+
+### Screenshots
+![POS System](images/image.png)
+
+|   |   |
+| :---: | :---: |
+| ![Screenshot](images/image2.png) | ![Screenshot](images/image3.png) |
+| ![Screenshot](images/image4.png) | ![Screenshot](images/image5.png) |
 
 ### Installation & Setup
 
@@ -188,6 +196,14 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
     *   銷售概況（每日營收、訂單量）。
     *   菜單管理（新增/修改/刪除餐點，支援軟刪除）。
     *   分店管理（多店支援）。
+
+### 軟體截圖 (Screenshots)
+![POS System](images/image.png)
+
+|   |   |
+| :---: | :---: |
+| ![Screenshot](images/image2.png) | ![Screenshot](images/image3.png) |
+| ![Screenshot](images/image4.png) | ![Screenshot](images/image5.png) |
 
 ### 安裝與設定
 
