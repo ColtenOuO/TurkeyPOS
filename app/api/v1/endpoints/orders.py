@@ -95,4 +95,11 @@ def delete_order(
     """
     刪除訂單
     """
-    return crud_order.delete_order(db, order_id)
+    order = crud_order.get_order(db, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # 先序列化，刪除後物件會脫離 session 無法再讀取關聯資料
+    deleted = OrderResponse.model_validate(order)
+    crud_order.delete_order(db, order_id)
+    return deleted

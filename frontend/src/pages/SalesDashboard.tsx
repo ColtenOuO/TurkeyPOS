@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Calendar, Search, DollarSign, ShoppingBag, TrendingUp, Clock, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Calendar, Search, DollarSign, ShoppingBag, TrendingUp, Clock, RefreshCw, CalendarCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
@@ -14,6 +14,8 @@ interface SalesStats {
         total_orders: number;
         total_sales: number;
         avg_order_value: number;
+        reservation_orders: number;
+        reservation_sales: number;
     };
     products?: {
         name: string;
@@ -229,7 +231,7 @@ const SalesDashboard: React.FC = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl shadow-blue-200">
                     <div className="flex items-center gap-3 mb-2 opacity-80">
                         <div className="p-2 bg-white/20 rounded-lg">
@@ -272,6 +274,21 @@ const SalesDashboard: React.FC = () => {
                     </div>
                     <div className="mt-4 text-sm font-bold text-slate-400">
                         每筆平均消費
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-2 text-slate-500">
+                        <div className="p-2 bg-amber-50 text-amber-500 rounded-lg">
+                            <CalendarCheck size={20} />
+                        </div>
+                        <span className="font-bold">預定訂單</span>
+                    </div>
+                    <div className="text-4xl font-black text-slate-800">
+                        ${stats?.stats.reservation_sales?.toLocaleString() || 0}
+                    </div>
+                    <div className="mt-4 text-sm font-bold text-slate-400">
+                        {stats?.stats.reservation_orders || 0} 筆 (已含在總銷售額)
                     </div>
                 </div>
             </div>

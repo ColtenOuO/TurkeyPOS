@@ -39,19 +39,19 @@ def get_sales_stats(
     query = db.query(
         func.count(Order.id).label("total_orders"),
         func.sum(Order.total_price).label("total_sales")
-    )
-    
+    ).filter(Order.status != "cancelled")
+
     # Filter by store if applicable
     if filter_store_id:
         query = query.filter(Order.store_id == filter_store_id)
 
-    
+
     # Filter by date range if provided
     if start_date:
         query = query.filter(func.date(Order.created_at) >= start_date)
     if end_date:
         query = query.filter(func.date(Order.created_at) <= end_date)
-        
+
     result = query.first()
     
     total_orders = result.total_orders or 0
@@ -67,8 +67,9 @@ def get_sales_stats(
         OrderItem.product_name,
         func.sum(OrderItem.quantity).label("total_quantity"),
         func.sum(OrderItem.quantity * OrderItem.unit_price).label("product_revenue")
-    ).join(Order, Order.id == OrderItem.order_id)
-    
+    ).join(Order, Order.id == OrderItem.order_id)\
+     .filter(Order.status != "cancelled")
+
     # Filter by store if applicable
     if filter_store_id:
         prod_query = prod_query.filter(Order.store_id == filter_store_id)
@@ -92,6 +93,22 @@ def get_sales_stats(
         for p in prod_stats
     ]
     
+    # --- 預定訂單 (Reservation) 佔比，金額已包含在上方總計中 ---
+    res_query = db.query(
+        func.count(Order.id).label("total_orders"),
+        func.sum(Order.total_price).label("total_sales")
+    ).filter(Order.status != "cancelled")\
+     .filter(Order.is_reservation.is_(True))
+
+    if filter_store_id:
+        res_query = res_query.filter(Order.store_id == filter_store_id)
+    if start_date:
+        res_query = res_query.filter(func.date(Order.created_at) >= start_date)
+    if end_date:
+        res_query = res_query.filter(func.date(Order.created_at) <= end_date)
+
+    res_result = res_query.first()
+
     return {
         "period": {
             "start": start_date,
@@ -100,7 +117,9 @@ def get_sales_stats(
         "stats": {
             "total_orders": total_orders,
             "total_sales": total_sales,
-            "avg_order_value": round(avg_order_value, 2)
+            "avg_order_value": round(avg_order_value, 2),
+            "reservation_orders": res_result.total_orders or 0,
+            "reservation_sales": float(res_result.total_sales or 0.0)
         },
         "products": products_data
     }

@@ -45,3 +45,29 @@ export interface Order {
   created_at: string;
   items: OrderItemBackend[];
 }
+
+export interface Reservation {
+  id: string;
+  store_id: string | null;
+  store_name: string | null;
+  customer_name: string | null;
+  customer_unit: string | null;
+  customer_phone: string | null;
+  order_type: string; // takeout | delivery
+  delivery_address: string | null;
+  pickup_time: string | null;
+  total_price: number;
+  status: string; // reserved | pending | completed | cancelled
+  created_at: string;
+  items: OrderItemBackend[];
+}
+
+export interface ReservationSummary {
+  store_id: string | null;
+  store_name: string | null;
+  total_orders: number;
+  total_sales: number;
+  takeout_orders: number;
+  delivery_orders: number;
+  reservations: Reservation[];
+}

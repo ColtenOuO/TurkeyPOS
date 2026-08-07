@@ -4,7 +4,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     AreaChart, Area
 } from 'recharts';
-import { LayoutDashboard, DollarSign, ShoppingBag, TrendingUp, Package, CalendarDays, Store } from 'lucide-react';
+import { LayoutDashboard, DollarSign, ShoppingBag, TrendingUp, Package, CalendarDays, Store, CalendarCheck } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
@@ -76,6 +76,10 @@ const Admin: React.FC = () => {
                         <a href="/admin/sales" className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-200">
                             <TrendingUp size={18} />
                             銷售報表
+                        </a>
+                        <a href="/admin/reservations" className="px-4 py-2 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-colors flex items-center gap-2 shadow-lg shadow-orange-200">
+                            <CalendarCheck size={18} />
+                            預定訂單
                         </a>
                         <a href="/admin/products" className="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center gap-2">
                             <Package size={18} />

@@ -31,9 +31,13 @@ It features a responsive POS interface for ordering, a real-time Kitchen Display
     *   Real-time order updates.
     *   Clear distinction between Dine-in and Takeout (Blue Badge) orders.
     *   One-click order completion.
+*   **Online Reservation (`/reserve`)**:
+    *   Public page for customers to pre-order without logging in.
+    *   Collects name, unit (optional), phone, takeout/delivery (address required for delivery) and optional pickup time.
 *   **Admin Dashboard**:
     *   Sales overview (Daily revenue, Order counts).
     *   Menu management (Add/Edit/Delete items, Soft delete).
+    *   Reservation board (`/admin/reservations`): today's reservations grouped by store, counted into the sales report.
 *   Store management (Multi-store support).
 
 ### Screenshots
@@ -192,9 +196,13 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
     *   清楚標示「外帶」訂單（藍色標籤）。
     *   一鍵完成訂單功能。
     *   支援「回到點餐」快速切換。
+*   **線上預定訂單 (`/reserve`)**:
+    *   顧客免登入即可線上預定，選擇分店與餐點。
+    *   填寫訂購人姓名、單位（選填）、電話、外帶自取或外送（外送需填地址）、預定取餐時間（選填）。
 *   **後台管理**:
     *   銷售概況（每日營收、訂單量）。
     *   菜單管理（新增/修改/刪除餐點，支援軟刪除）。
+    *   預定訂單管理 (`/admin/reservations`)：依分店分類查詢當日預定訂單，金額同步計入銷售報表。
     *   分店管理（多店支援）。
 
 ### 軟體截圖 (Screenshots)
@@ -331,3 +339,8 @@ TurkeyPOS (v1.1.0) 是一個專為火雞肉飯餐飲店設計的現代化 POS �
 3.  **操作流程**:
     *   店員在 POS 頁面點餐 -> 結帳。
     *   廚房在 `/kitchen` 頁面看到訂單 -> 製作完成後點選完成。
+
+4.  **預定訂單流程**:
+    *   顧客在 `/reserve` 頁面選擇分店、填寫訂購資訊與餐點後送出（狀態：已預定）。
+    *   管理員在 `/admin/reservations` 依分店查看當日預定，點「確認並送廚房」後訂單會出現在 `/kitchen`。
+    *   完成或取消皆可於該頁操作；已取消的訂單不列入銷售統計。

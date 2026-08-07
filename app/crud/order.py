@@ -6,27 +6,24 @@ from app.models.product import Product, ProductOption
 from app.schemas.order import OrderCreate
 from fastapi import HTTPException
 
-def create_order(db: Session, order_in: OrderCreate, store_id: uuid.UUID = None):
-    total_price = 0.0
-    db_order = Order(
-        id=uuid.uuid4(),
-        table_number=order_in.table_number,
-        total_price=0.0,
-        status="pending",
-        order_type=order_in.order_type,
-        created_at=datetime.utcnow() + timedelta(hours=8),
-        store_id=store_id
-    )
-    db.add(db_order)
+def now_tw():
+    """系統時間統一使用 UTC+8"""
+    return datetime.utcnow() + timedelta(hours=8)
 
-    for item in order_in.items:
+def build_order_items(db: Session, db_order: Order, items):
+    """
+    依照送出的品項建立 OrderItem / OrderItemOption，並回傳訂單總金額
+    """
+    total_price = 0.0
+
+    for item in items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
         if not product:
             raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
 
         current_unit_price = product.base_price
         options_to_add = []
-        
+
         for opt_id in item.option_ids:
             option = db.query(ProductOption).filter(ProductOption.id == opt_id).first()
             if option:
@@ -42,17 +39,31 @@ def create_order(db: Session, order_in: OrderCreate, store_id: uuid.UUID = None)
             unit_price=current_unit_price
         )
         db.add(db_item)
-        
+
         for opt in options_to_add:
             db.add(OrderItemOption(
                 order_item_id=db_item.id,
                 option_name=opt.name,
                 price_delta=opt.price_delta
             ))
-        
+
         total_price += current_unit_price * item.quantity
 
-    db_order.total_price = total_price
+    return total_price
+
+def create_order(db: Session, order_in: OrderCreate, store_id: uuid.UUID = None):
+    db_order = Order(
+        id=uuid.uuid4(),
+        table_number=order_in.table_number,
+        total_price=0.0,
+        status="pending",
+        order_type=order_in.order_type,
+        created_at=now_tw(),
+        store_id=store_id
+    )
+    db.add(db_order)
+
+    db_order.total_price = build_order_items(db, db_order, order_in.items)
     db.commit()
     db.refresh(db_order)
     return db_order
@@ -84,6 +95,9 @@ def get_orders(db: Session, skip: int = 0, limit: int = 100, store_id: uuid.UUID
         .offset(skip)\
         .limit(limit)\
         .all()
+
+def get_order(db: Session, order_id: uuid.UUID):
+    return db.query(Order).filter(Order.id == order_id).first()
 
 def update_order_status(db: Session, order_id: uuid.UUID, status: str):
     order = db.query(Order).filter(Order.id == order_id).first()

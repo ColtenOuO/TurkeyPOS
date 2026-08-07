@@ -23,6 +23,23 @@ const StoreManagement: React.FC = () => {
     const [newStoreName, setNewStoreName] = useState("");
     const [newStorePassword, setNewStorePassword] = useState("");
 
+    /**
+     * 顯示後端實際回傳的錯誤；登入逾期 (401) 一律導回登入頁重新取得 token
+     */
+    const handleApiError = (err: any, fallback: string) => {
+        console.error(fallback, err);
+
+        if (err.response?.status === 401) {
+            alert("登入已逾期，請重新登入");
+            localStorage.removeItem('token');
+            navigate('/login');
+            return;
+        }
+
+        const detail = err.response?.data?.detail;
+        alert(typeof detail === 'string' ? detail : fallback);
+    };
+
     const fetchStores = async () => {
         try {
             const res = await axios.get(`${API_BASE}/stores/`);
@@ -50,7 +67,7 @@ const StoreManagement: React.FC = () => {
             setNewStorePassword("");
             fetchStores();
         } catch (err) {
-            alert("新增分店失敗 (可能名稱重複)");
+            handleApiError(err, "新增分店失敗 (可能名稱重複)");
         }
     };
 
@@ -60,8 +77,7 @@ const StoreManagement: React.FC = () => {
             await axios.delete(`${API_BASE}/stores/${id}`);
             fetchStores();
         } catch (err) {
-            console.error("Delete failed", err);
-            alert("刪除失敗");
+            handleApiError(err, "刪除失敗");
         }
     };
 
@@ -75,7 +91,7 @@ const StoreManagement: React.FC = () => {
             });
             alert("密碼已重置");
         } catch (err) {
-            alert("重置密碼失敗");
+            handleApiError(err, "重置密碼失敗");
         }
     };
 

@@ -3,24 +3,36 @@
 import uuid
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import ForeignKey, String, Float, DateTime, Integer, UUID
+from sqlalchemy import ForeignKey, String, Float, DateTime, Integer, Boolean, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 from app.models.store import Store
 
 class Order(Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
-    table_number: Mapped[Optional[str]] = mapped_column(String(10)) 
+    table_number: Mapped[Optional[str]] = mapped_column(String(10))
     total_price: Mapped[float] = mapped_column(Float, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default="pending") 
+    status: Mapped[str] = mapped_column(String(20), default="pending")
     order_type: Mapped[str] = mapped_column(String(20), default="dine_in")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     store_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("stores.id"), nullable=True)
-    
+
+    # 預定訂單 (Reservation) 專用欄位
+    is_reservation: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    customer_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    customer_unit: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    customer_phone: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    delivery_address: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    pickup_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     items: Mapped[List["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
     store: Mapped["Store"] = relationship()
+
+    @property
+    def store_name(self) -> Optional[str]:
+        return self.store.name if self.store else None
 
 class OrderItem(Base):
     """訂單明細"""
