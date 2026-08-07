@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import POS from './pages/POS';
 import Kitchen from './pages/Kitchen';
 import Admin from './pages/Admin';
@@ -14,9 +14,38 @@ import Reservation from './pages/Reservation';
 import ReservationStatus from './pages/ReservationStatus';
 import ReservationManagement from './pages/ReservationManagement';
 
+const SITE_NAME = 'TurkeyPOS 火雞肉飯';
+
+const PAGE_TITLES: Record<string, string> = {
+  '/': '點餐系統',
+  '/kitchen': '廚房接單',
+  '/reserve': '線上預定訂餐',
+  '/reserve/status': '訂單查詢',
+  '/login': '管理員登入',
+  '/store-login': '分店登入',
+  '/admin': '管理後台',
+  '/admin/products': '商品管理',
+  '/admin/stores': '分店管理',
+  '/admin/sales': '銷售報表',
+  '/admin/reservations': '預定訂單',
+};
+
+/** 依路由更新瀏覽器分頁標題 */
+const DocumentTitle: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const page = PAGE_TITLES[pathname];
+    document.title = page ? `${page} | ${SITE_NAME}` : SITE_NAME;
+  }, [pathname]);
+
+  return null;
+};
+
 const App: React.FC = () => {
   return (
     <Router>
+      <DocumentTitle />
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />

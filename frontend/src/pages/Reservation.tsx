@@ -140,13 +140,21 @@ const Reservation: React.FC = () => {
         <div className="min-h-screen bg-slate-100 font-sans">
             {/* 手機底部有結帳列，預留空間 */}
             <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-28 lg:pb-8">
-                <header className="mb-5 sm:mb-7">
-                    <h1 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500 flex items-center gap-2.5 italic tracking-tight">
-                        <CalendarCheck size={28} className="text-orange-600 shrink-0" /> 線上預定訂餐
-                    </h1>
-                    <p className="text-slate-500 font-bold text-sm mt-1.5 sm:ml-10">
-                        填寫訂購資訊並選擇餐點，送出後由門市為您準備
-                    </p>
+                <header className="mb-5 sm:mb-7 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500 flex items-center gap-2.5 italic tracking-tight">
+                            <CalendarCheck size={28} className="text-orange-600 shrink-0" /> 線上預定訂餐
+                        </h1>
+                        <p className="text-slate-500 font-bold text-sm mt-1.5 sm:ml-10">
+                            填寫訂購資訊並選擇餐點，送出後由門市為您準備
+                        </p>
+                    </div>
+                    <Link
+                        to="/reserve/status"
+                        className="shrink-0 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:border-orange-300 hover:text-orange-600 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm"
+                    >
+                        <Search size={16} /> <span className="hidden sm:inline">查詢訂單</span>
+                    </Link>
                 </header>
 
                 {stores.length === 0 && (
