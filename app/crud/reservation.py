@@ -22,6 +22,33 @@ def _get_reservation_or_404(db: Session, reservation_id: uuid.UUID) -> Order:
     return reservation
 
 
+def _normalize_phone(phone: Optional[str]) -> str:
+    """只留數字比對，並把 +886/886 開頭視同 0 開頭"""
+    digits = "".join(c for c in (phone or "") if c.isdigit())
+    if digits.startswith("886"):
+        digits = "0" + digits[3:]
+    return digits
+
+
+def _normalize_name(name: Optional[str]) -> str:
+    return "".join((name or "").split()).casefold()
+
+
+def find_reservation(db: Session, reservation_id: uuid.UUID) -> Optional[Order]:
+    """找不到不拋錯，供公開查詢使用"""
+    return db.query(Order)\
+        .filter(Order.id == reservation_id, Order.is_reservation.is_(True))\
+        .first()
+
+
+def matches_customer(reservation: Order, customer_name: str, customer_phone: str) -> bool:
+    """姓名與電話是否與訂單相符 (忽略空白/大小寫/電話符號)"""
+    return (
+        _normalize_name(reservation.customer_name) == _normalize_name(customer_name)
+        and _normalize_phone(reservation.customer_phone) == _normalize_phone(customer_phone)
+    )
+
+
 def create_reservation(db: Session, reservation_in: ReservationCreate) -> Order:
     store = db.query(Store).filter(Store.id == reservation_in.store_id).first()
     if not store:

@@ -99,6 +99,39 @@ class ReservationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ReservationLookupRequest(BaseModel):
+    """顧客查詢訂單：訂單編號 + 姓名 + 電話 三者皆須相符"""
+    reservation_id: uuid.UUID
+    customer_name: str
+    customer_phone: str
+
+    @field_validator("customer_name", "customer_phone")
+    @classmethod
+    def not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("此欄位為必填")
+        return v.strip()
+
+
+class ReservationPublicResponse(BaseModel):
+    """
+    顧客通過姓名 + 電話驗證後可看到的訂單內容
+    """
+    id: uuid.UUID
+    store_name: Optional[str] = None
+    customer_name: Optional[str] = None
+    customer_unit: Optional[str] = None
+    customer_phone: Optional[str] = None
+    order_type: str
+    delivery_address: Optional[str] = None
+    pickup_time: Optional[datetime] = None
+    total_price: float
+    status: str
+    created_at: datetime
+    items: List[OrderItemSchema]
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ReservationDailySummary(BaseModel):
     """今日預定訂單依分店彙總"""
     store_id: Optional[uuid.UUID] = None

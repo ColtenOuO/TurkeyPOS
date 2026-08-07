@@ -62,6 +62,22 @@ export interface Reservation {
   items: OrderItemBackend[];
 }
 
+/** 顧客通過姓名 + 電話驗證後可查詢的訂單資料 */
+export interface ReservationPublic {
+  id: string;
+  store_name: string | null;
+  customer_name: string | null;
+  customer_unit: string | null;
+  customer_phone: string | null;
+  order_type: string;
+  delivery_address: string | null;
+  pickup_time: string | null;
+  total_price: number;
+  status: string;
+  created_at: string;
+  items: OrderItemBackend[];
+}
+
 export interface ReservationSummary {
   store_id: string | null;
   store_name: string | null;

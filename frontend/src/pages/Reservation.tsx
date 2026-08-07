@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import {
     Utensils, ShoppingCart, Trash2, ChevronRight, ArrowLeft, Store,
-    User, Phone, Building2, MapPin, Clock, CalendarCheck
+    User, Phone, Building2, MapPin, Clock, CalendarCheck, Check, Copy, Search
 } from 'lucide-react';
-import type { Category, Product, CartItem, ProductOption } from '../types';
+import type { Category, Product, CartItem, ProductOption, Reservation as ReservationType } from '../types';
 import SelectionModal from '../components/SelectionModal';
-import SuccessModal from '../components/SuccessModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
@@ -21,8 +21,10 @@ const Reservation: React.FC = () => {
     const [stores, setStores] = useState<{ id: string, name: string, is_active: boolean }[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [showSuccess, setShowSuccess] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
+    // 送出成功後保留的訂單編號 (即後端 Order.id)
+    const [submittedId, setSubmittedId] = useState<string>("");
+    const [copied, setCopied] = useState<boolean>(false);
 
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -93,7 +95,7 @@ const Reservation: React.FC = () => {
 
         setSubmitting(true);
         try {
-            await axios.post(`${API_BASE}/reservations/`, {
+            const res = await axios.post<ReservationType>(`${API_BASE}/reservations/`, {
                 store_id: storeId,
                 customer_name: customerName.trim(),
                 customer_unit: customerUnit.trim() || null,
@@ -108,7 +110,8 @@ const Reservation: React.FC = () => {
                 }))
             });
 
-            setShowSuccess(true);
+            setSubmittedId(res.data.id);
+            setCopied(false);
             setCart([]);
             setCustomerName("");
             setCustomerUnit("");
@@ -362,11 +365,54 @@ const Reservation: React.FC = () => {
                 />
             )}
 
-            {showSuccess && (
-                <SuccessModal
-                    message="預定成功！門市將為您準備"
-                    onClose={() => setShowSuccess(false)}
-                />
+            {/* 預定成功：顯示訂單編號，不自動關閉 */}
+            {submittedId && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:p-4">
+                    <div className="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl p-6 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-200">
+                                    <Check size={26} className="text-white stroke-[4]" />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800">預定成功！</h3>
+                            <p className="text-slate-500 font-bold text-sm mt-1">門市將為您準備，請保留訂單編號</p>
+                        </div>
+
+                        <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-1.5">訂單編號</div>
+                            <div className="flex items-center gap-2">
+                                <code className="flex-1 min-w-0 font-mono font-bold text-slate-800 text-sm break-all">{submittedId}</code>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard?.writeText(submittedId);
+                                        setCopied(true);
+                                        setTimeout(() => setCopied(false), 2000);
+                                    }}
+                                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-orange-600 active:scale-90 transition-all shrink-0"
+                                    title="複製訂單編號"
+                                >
+                                    {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2">
+                            <Link
+                                to={`/reserve/status?id=${submittedId}`}
+                                className="w-full py-3 rounded-xl font-black text-white bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg shadow-orange-200 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+                            >
+                                <Search size={16} /> 查詢訂單狀態
+                            </Link>
+                            <button
+                                onClick={() => setSubmittedId("")}
+                                className="w-full py-3 rounded-xl font-black text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
+                            >
+                                繼續預定
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

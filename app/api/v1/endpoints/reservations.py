@@ -1,7 +1,7 @@
 # app/api/v1/endpoints/reservations.py
 import uuid
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -16,6 +16,8 @@ from app.models.store import Store
 from app.schemas.reservation import (
     ReservationCreate,
     ReservationDailySummary,
+    ReservationLookupRequest,
+    ReservationPublicResponse,
     ReservationResponse,
     ReservationUpdate,
 )
@@ -141,6 +143,68 @@ def _build_summary(store_id, store_name, rows) -> dict:
         "delivery_orders": len([r for r in countable if r.order_type == "delivery"]),
         "reservations": rows,
     }
+
+
+# 查詢失敗次數 (per 訂單編號)，避免以姓名/電話暴力嘗試
+# 只記錄「訂單存在但姓名/電話不符」的失敗，因此 key 數量受限於實際訂單數，
+# 用隨機編號亂打不會在此累積任何資料
+_LOOKUP_FAIL_LIMIT = 5
+_LOOKUP_FAIL_WINDOW = timedelta(minutes=10)
+_LOOKUP_SWEEP_INTERVAL = timedelta(minutes=1)
+_lookup_failures: dict = {}
+_last_sweep = datetime.utcnow()
+
+
+def _recent_failures(key: str, now: datetime) -> list:
+    """取得該編號在視窗內的失敗紀錄，順手清掉自己過期的部分 (O(1) 攤提)"""
+    attempts = [t for t in _lookup_failures.get(key, []) if now - t < _LOOKUP_FAIL_WINDOW]
+    if attempts:
+        _lookup_failures[key] = attempts
+    else:
+        _lookup_failures.pop(key, None)
+    return attempts
+
+
+def _sweep_failures(now: datetime):
+    """整批清除過期紀錄。最多每分鐘掃一次，避免每個請求都走訪全表"""
+    global _last_sweep
+    if now - _last_sweep < _LOOKUP_SWEEP_INTERVAL:
+        return
+    _last_sweep = now
+    for key, attempts in list(_lookup_failures.items()):
+        if not any(now - t < _LOOKUP_FAIL_WINDOW for t in attempts):
+            del _lookup_failures[key]
+
+
+@router.post("/lookup", response_model=ReservationPublicResponse)
+def lookup_reservation(lookup_in: ReservationLookupRequest, db: Session = Depends(get_db)):
+    """
+    顧客查詢預定訂單狀態 (公開，需雙重驗證)
+
+    須同時提供訂單編號、訂購人姓名與電話，三者相符才回傳訂單內容。
+    姓名忽略空白與大小寫，電話忽略符號並將 +886 視同 0 開頭。
+    """
+    now = datetime.utcnow()
+    _sweep_failures(now)
+
+    key = str(lookup_in.reservation_id)
+    if len(_recent_failures(key, now)) >= _LOOKUP_FAIL_LIMIT:
+        raise HTTPException(status_code=429, detail="嘗試次數過多，請稍後再試")
+
+    # 對外一律回傳相同的 404，不區分「查無訂單」與「姓名/電話不符」
+    not_found = HTTPException(status_code=404, detail="訂單編號、姓名或電話有誤，請確認後再試")
+
+    reservation = crud_reservation.find_reservation(db, lookup_in.reservation_id)
+    if not reservation:
+        # 編號不存在就不留紀錄，否則隨機編號亂打會無限撐大 _lookup_failures
+        raise not_found
+
+    if not crud_reservation.matches_customer(reservation, lookup_in.customer_name, lookup_in.customer_phone):
+        _lookup_failures.setdefault(key, []).append(now)
+        raise not_found
+
+    _lookup_failures.pop(key, None)
+    return reservation
 
 
 @router.get("/{reservation_id}", response_model=ReservationResponse)

@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import StoreLogin from './pages/StoreLogin';
 import StoreProtectedRoute from './components/StoreProtectedRoute';
 import Reservation from './pages/Reservation';
+import ReservationStatus from './pages/ReservationStatus';
 import ReservationManagement from './pages/ReservationManagement';
 
 const App: React.FC = () => {
@@ -22,6 +23,8 @@ const App: React.FC = () => {
         <Route path="/store-login" element={<StoreLogin />} />
         {/* 顧客線上預定 (免登入) */}
         <Route path="/reserve" element={<Reservation />} />
+        {/* 顧客訂單查詢：/reserve/status?id=<訂單編號> */}
+        <Route path="/reserve/status" element={<ReservationStatus />} />
 
         {/* Store Protected Routes (POS & Kitchen) */}
         <Route element={<StoreProtectedRoute />}>
