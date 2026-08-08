@@ -84,6 +84,7 @@ class ReservationUpdate(BaseModel):
 
 class ReservationResponse(BaseModel):
     id: uuid.UUID
+    order_no: Optional[str] = None
     store_id: Optional[uuid.UUID] = None
     store_name: Optional[str] = None
     customer_name: Optional[str] = None
@@ -100,8 +101,7 @@ class ReservationResponse(BaseModel):
 
 
 class ReservationLookupRequest(BaseModel):
-    """顧客查詢訂單：訂單編號 + 姓名 + 電話 三者皆須相符"""
-    reservation_id: uuid.UUID
+    """顧客查詢訂單：以訂購人姓名 + 電話查詢近期訂單"""
     customer_name: str
     customer_phone: str
 
@@ -115,9 +115,9 @@ class ReservationLookupRequest(BaseModel):
 
 class ReservationPublicResponse(BaseModel):
     """
-    顧客通過姓名 + 電話驗證後可看到的訂單內容
+    顧客通過姓名 + 電話驗證後可看到的訂單內容 (不含內部 UUID)
     """
-    id: uuid.UUID
+    order_no: Optional[str] = None
     store_name: Optional[str] = None
     customer_name: Optional[str] = None
     customer_unit: Optional[str] = None

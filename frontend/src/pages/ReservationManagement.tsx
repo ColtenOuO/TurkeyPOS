@@ -17,6 +17,12 @@ const STATUS_LABELS: Record<string, { text: string, className: string }> = {
     cancelled: { text: '已取消', className: 'bg-slate-100 text-slate-500 border-slate-200' },
 };
 
+/**
+ * 後端訂單時間一律以 UTC+8 記錄，查詢日期必須用同一個基準。
+ * 直接用 toISOString() 會取到 UTC 日期，台灣時間 00:00~08:00 之間會查不到當天訂單。
+ */
+export const todayTW = () => new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().split('T')[0];
+
 const formatTime = (value: string | null) =>
     value ? new Date(value).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : null;
 
@@ -25,7 +31,7 @@ const ReservationManagement: React.FC = () => {
     const [summaries, setSummaries] = useState<ReservationSummary[]>([]);
     const [stores, setStores] = useState<{ id: string, name: string }[]>([]);
     const [loading, setLoading] = useState(true);
-    const [queryDate, setQueryDate] = useState(new Date().toISOString().split('T')[0]);
+    const [queryDate, setQueryDate] = useState(todayTW());
     const [selectedStore, setSelectedStore] = useState<string>("");
     const [deleteTarget, setDeleteTarget] = useState<Reservation | null>(null);
     const [editTarget, setEditTarget] = useState<Reservation | null>(null);
@@ -146,7 +152,7 @@ const ReservationManagement: React.FC = () => {
                     </select>
                 </div>
                 <button
-                    onClick={() => setQueryDate(new Date().toISOString().split('T')[0])}
+                    onClick={() => setQueryDate(todayTW())}
                     className="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
                 >
                     今日
@@ -217,6 +223,9 @@ const ReservationManagement: React.FC = () => {
                                         <div key={r.id} className={`rounded-2xl border p-5 flex flex-col ${r.status === 'cancelled' ? 'bg-slate-50 border-slate-200 opacity-70' : 'bg-white border-slate-100 shadow-sm'}`}>
                                             <div className="flex justify-between items-start mb-3">
                                                 <div>
+                                                    <div className="font-mono font-black text-2xl text-orange-600 tracking-wider leading-none mb-1.5">
+                                                        {r.order_no || "—"}
+                                                    </div>
                                                     <div className="text-xl font-black text-slate-800">{r.customer_name}</div>
                                                     {r.customer_unit && (
                                                         <div className="text-sm font-bold text-slate-500 flex items-center gap-1 mt-1">

@@ -21,6 +21,8 @@ class Order(Base):
 
     # 預定訂單 (Reservation) 專用欄位
     is_reservation: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # 給顧客看的 5 位數訂單編號；已完成/已取消後可被回收再利用
+    order_no: Mapped[Optional[str]] = mapped_column(String(5), nullable=True, index=True)
     customer_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     customer_unit: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     customer_phone: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)

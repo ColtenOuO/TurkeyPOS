@@ -1,6 +1,7 @@
 # app/crud/reservation.py
+import random
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 from fastapi import HTTPException
@@ -34,6 +35,69 @@ def _normalize_name(name: Optional[str]) -> str:
     return "".join((name or "").split()).casefold()
 
 
+#「進行中」的訂單編號不可重複，完成/取消後即可回收
+ACTIVE_STATUSES = ("reserved", "pending")
+_ORDER_NO_MIN = 10000
+_ORDER_NO_MAX = 99999
+_ORDER_NO_MAX_TRIES = 50
+
+
+def generate_order_no(db: Session) -> str:
+    """產生一組未被進行中訂單佔用的 5 位數編號"""
+    taken = {
+        row[0] for row in db.query(Order.order_no)
+        .filter(Order.order_no.isnot(None), Order.status.in_(ACTIVE_STATUSES))
+        .all()
+    }
+
+    for _ in range(_ORDER_NO_MAX_TRIES):
+        candidate = str(random.randint(_ORDER_NO_MIN, _ORDER_NO_MAX))
+        if candidate not in taken:
+            return candidate
+
+    raise HTTPException(status_code=503, detail="目前訂單量過大，請稍後再試")
+
+
+def find_reservations_by_customer(
+    db: Session,
+    customer_name: str,
+    customer_phone: str,
+    days: int = 30,
+    limit: int = 20,
+):
+    """
+    以姓名 + 電話查詢該顧客近期的預定訂單 (最新的排前面)。
+    姓名與電話都在 Python 端正規化比對，因此先以天數縮小範圍再比對。
+    """
+    since = now_tw() - timedelta(days=days)
+    candidates = db.query(Order)\
+        .filter(Order.is_reservation.is_(True), Order.created_at >= since)\
+        .options(joinedload(Order.items).joinedload(OrderItem.selected_options),
+                 joinedload(Order.store))\
+        .order_by(Order.created_at.desc())\
+        .all()
+
+    target_name = _normalize_name(customer_name)
+    target_phone = _normalize_phone(customer_phone)
+
+    matched = [
+        r for r in candidates
+        if _normalize_name(r.customer_name) == target_name
+        and _normalize_phone(r.customer_phone) == target_phone
+    ]
+    return matched[:limit]
+
+
+def phone_has_reservations(db: Session, customer_phone: str, days: int = 30) -> bool:
+    """該電話是否有近期預定訂單 (只用於決定要不要記錄查詢失敗次數)"""
+    since = now_tw() - timedelta(days=days)
+    target_phone = _normalize_phone(customer_phone)
+    rows = db.query(Order.customer_phone)\
+        .filter(Order.is_reservation.is_(True), Order.created_at >= since)\
+        .all()
+    return any(_normalize_phone(r[0]) == target_phone for r in rows)
+
+
 def find_reservation(db: Session, reservation_id: uuid.UUID) -> Optional[Order]:
     """找不到不拋錯，供公開查詢使用"""
     return db.query(Order)\
@@ -58,6 +122,7 @@ def create_reservation(db: Session, reservation_in: ReservationCreate) -> Order:
 
     db_order = Order(
         id=uuid.uuid4(),
+        order_no=generate_order_no(db),
         table_number=None,
         total_price=0.0,
         status="reserved",

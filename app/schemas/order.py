@@ -38,4 +38,14 @@ class OrderResponse(BaseModel):
     status: str
     created_at: datetime
     items: List[OrderItemSchema]
+
+    # 預定訂單才有值，供廚房/後台辨識來源
+    is_reservation: bool = False
+    order_no: Optional[str] = None
+    customer_name: Optional[str] = None
+    customer_unit: Optional[str] = None
+    customer_phone: Optional[str] = None
+    delivery_address: Optional[str] = None
+    pickup_time: Optional[datetime] = None
+
     model_config = ConfigDict(from_attributes=True)

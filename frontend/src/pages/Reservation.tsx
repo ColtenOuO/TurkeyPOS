@@ -22,8 +22,8 @@ const Reservation: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
-    // 送出成功後保留的訂單編號 (即後端 Order.id)
-    const [submittedId, setSubmittedId] = useState<string>("");
+    // 送出成功後保留的 5 位數訂單編號
+    const [submittedNo, setSubmittedNo] = useState<string>("");
     const [copied, setCopied] = useState<boolean>(false);
 
     const [cart, setCart] = useState<CartItem[]>([]);
@@ -110,7 +110,7 @@ const Reservation: React.FC = () => {
                 }))
             });
 
-            setSubmittedId(res.data.id);
+            setSubmittedNo(res.data.order_no || "");
             setCopied(false);
             setCart([]);
             setCustomerName("");
@@ -374,7 +374,7 @@ const Reservation: React.FC = () => {
             )}
 
             {/* 預定成功：顯示訂單編號，不自動關閉 */}
-            {submittedId && (
+            {submittedNo && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:p-4">
                     <div className="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl p-6 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
                         <div className="flex flex-col items-center text-center">
@@ -384,16 +384,16 @@ const Reservation: React.FC = () => {
                                 </div>
                             </div>
                             <h3 className="text-xl font-black text-slate-800">預定成功！</h3>
-                            <p className="text-slate-500 font-bold text-sm mt-1">門市將為您準備，請保留訂單編號</p>
+                            <p className="text-slate-500 font-bold text-sm mt-1">門市將為您準備，請記下訂單編號</p>
                         </div>
 
                         <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-4">
                             <div className="text-[11px] font-black text-slate-400 uppercase tracking-wide mb-1.5">訂單編號</div>
                             <div className="flex items-center gap-2">
-                                <code className="flex-1 min-w-0 font-mono font-bold text-slate-800 text-sm break-all">{submittedId}</code>
+                                <div className="flex-1 text-4xl font-black text-slate-800 font-mono tracking-[0.2em]">{submittedNo}</div>
                                 <button
                                     onClick={() => {
-                                        navigator.clipboard?.writeText(submittedId);
+                                        navigator.clipboard?.writeText(submittedNo);
                                         setCopied(true);
                                         setTimeout(() => setCopied(false), 2000);
                                     }}
@@ -407,13 +407,13 @@ const Reservation: React.FC = () => {
 
                         <div className="mt-4 space-y-2">
                             <Link
-                                to={`/reserve/status?id=${submittedId}`}
+                                to="/reserve/status"
                                 className="w-full py-3 rounded-xl font-black text-white bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg shadow-orange-200 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
                             >
                                 <Search size={16} /> 查詢訂單狀態
                             </Link>
                             <button
-                                onClick={() => setSubmittedId("")}
+                                onClick={() => setSubmittedNo("")}
                                 className="w-full py-3 rounded-xl font-black text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
                             >
                                 繼續預定

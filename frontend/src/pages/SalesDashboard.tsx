@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ArrowLeft, Calendar, Search, DollarSign, ShoppingBag, TrendingUp, Clock, RefreshCw, CalendarCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { todayTW } from './ReservationManagement';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api/v1";
 
@@ -32,8 +33,8 @@ const SalesDashboard: React.FC = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     // Filter States
-    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+    const [startDate, setStartDate] = useState(todayTW());
+    const [endDate, setEndDate] = useState(todayTW());
     const [isOverall, setIsOverall] = useState(false);
 
     // Store Filter
@@ -109,7 +110,7 @@ const SalesDashboard: React.FC = () => {
     };
 
     const handleToday = () => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayTW();
         setStartDate(today);
         setEndDate(today);
         setIsOverall(false);

@@ -44,10 +44,19 @@ export interface Order {
   status: string;
   created_at: string;
   items: OrderItemBackend[];
+  // 預定訂單才有值
+  is_reservation: boolean;
+  order_no: string | null;
+  customer_name: string | null;
+  customer_unit: string | null;
+  customer_phone: string | null;
+  delivery_address: string | null;
+  pickup_time: string | null;
 }
 
 export interface Reservation {
   id: string;
+  order_no: string | null;
   store_id: string | null;
   store_name: string | null;
   customer_name: string | null;
@@ -64,7 +73,7 @@ export interface Reservation {
 
 /** 顧客通過姓名 + 電話驗證後可查詢的訂單資料 */
 export interface ReservationPublic {
-  id: string;
+  order_no: string | null;
   store_name: string | null;
   customer_name: string | null;
   customer_unit: string | null;
