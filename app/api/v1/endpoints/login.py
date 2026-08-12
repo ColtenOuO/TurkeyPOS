@@ -17,10 +17,10 @@ def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     env_password = os.getenv("ADMIN_PASSWORD", "admin_secret")
     
     if form_data.username != "admin":
-         pass
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     if form_data.password != env_password:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
     
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
@@ -43,11 +43,8 @@ def login_store(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     Password = Store Password
     """
     username = form_data.username
-    # Fix for potential encoding issues (UTF-8 bytes interpreted as Latin-1)
     try:
-        # Check if it looks like mojibake
         fixed_username = username.encode('latin-1').decode('utf-8')
-        # If it changed (and didn't error), use the fixed one
         if fixed_username != username:
             username = fixed_username
     except Exception:
