@@ -18,7 +18,7 @@ def mock_db_session():
     yield mock_session
 
 
-@pytest.fixture
+@pytest.fixture # fixture 是 pytest 的一個功能，允許你在測試中提供共用的資源或設定
 def client(mock_db_session):
     # 用 mock session 覆蓋掉 get_db 依賴，測試就不會真的去連資料庫
     app.dependency_overrides[get_db] = lambda: mock_db_session
@@ -27,6 +27,7 @@ def client(mock_db_session):
     app.dependency_overrides.clear()
 
 
+# 下面的這些測資料試都會被用在 test_login_access_token 依序帶入對應的參數 (就是多組測資測試的概念)
 @pytest.mark.parametrize(
     "username, password, expected_status, expected_detail",
     [
